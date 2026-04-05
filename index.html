@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🏠 中国亲戚称呼计算器</title>
+<style>
+  :root {
+    --red: #c0392b;
+    --red-light: #e74c3c;
+    --red-bg: #fff5f5;
+    --gold: #d4a017;
+    --gold-light: #f0c040;
+    --bg: #fdf6ec;
+    --card: #fff;
+    --text: #2c2c2c;
+    --sub: #888;
+    --border: #e8d5c0;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== Header ===== */
+  header {
+    background: linear-gradient(135deg, var(--red) 0%, #8b0000 100%);
+    color: #fff;
+    padding: 28px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "🏮";
+    position: absolute; left: 20px; top: 20px;
+    font-size: 40px; opacity: 0.3;
+  }
+  header::after {
+    content: "🏮";
+    position: absolute; right: 20px; top: 20px;
+    font-size: 40px; opacity: 0.3;
+  }
+  header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  header p { font-size: 13px; opacity: 0.85; }
+
+  /* ===== Main Layout ===== */
+  .container { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex; gap: 8px;
+    margin-bottom: 20px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 6px;
+    box-shadow: var(--shadow);
+  }
+  .tab {
+    flex: 1; padding: 10px 0;
+    text-align: center; font-size: 14px; font-weight: 600;
+    border-radius: 10px; cursor: pointer;
+    color: var(--sub); transition: all 0.2s;
+    border: none; background: transparent;
+  }
+  .tab.active {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(192,57,43,0.3);
+  }
+  .tab:hover:not(.active) { background: var(--red-bg); color: var(--red); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== Card ===== */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .card h2 {
+    font-size: 16px; color: var(--red);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--red-bg);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ===== Form Elements ===== */
+  .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .form-group { flex: 1; min-width: 160px; }
+  label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 6px; font-weight: 500; }
+  select, input[type=text] {
+    width: 100%; padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 14px;
+    background: #fff; color: var(--text);
+    outline: none; transition: border 0.2s;
+    font-family: inherit;
+  }
+  select:focus, input[type=text]:focus { border-color: var(--red); }
+
+  /* ===== Gender Toggle ===== */
+  .gender-group {
+    display: flex; gap: 0; border-radius: 8px; overflow: hidden;
+    border: 1.5px solid var(--border);
+  }
+  .gender-btn {
+    flex: 1; padding: 10px; text-align: center;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: all 0.15s; border: none; background: #fff;
+    color: var(--sub); font-family: inherit;
+  }
+  .gender-btn.active.male { background: #3498db; color: #fff; }
+  .gender-btn.active.female { background: #e91e8c; color: #fff; }
+
+  /* ===== Result ===== */
+  .result-box {
+    background: linear-gradient(135deg, #fff9f0, #fff5f5);
+    border: 2px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-main {
+    font-size: 42px; font-weight: 800;
+    color: var(--red); margin: 8px 0;
+    text-shadow: 1px 1px 0 rgba(192,57,43,0.15);
+  }
+  .result-sub { font-size: 14px; color: var(--sub); margin-top: 6px; }
+  .result-reverse {
+    margin-top: 16px; padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    font-size: 14px; color: #666;
+  }
+  .result-reverse span { font-weight: 700; color: var(--red-light); font-size: 16px; }
+  .gen-badge {
+    display: inline-block;
+    padding: 3px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+    margin-top: 10px;
+  }
+  .gen-badge.up { background: #fff3cd; color: #856404; }
+  .gen-badge.same { background: #d1ecf1; color: #0c5460; }
+  .gen-badge.down { background: #d4edda; color: #155724; }
+
+  /* ===== Big Button ===== */
+  .btn-calc {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(192,57,43,0.4);
+    transition: transform 0.1s, box-shadow 0.1s;
+    font-family: inherit;
+  }
+  .btn-calc:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(192,57,43,0.5); }
+  .btn-calc:active { transform: translateY(0); }
+
+  /* ===== Search ===== */
+  .search-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search-bar input { flex: 1; }
+  .btn-search {
+    padding: 10px 18px; background: var(--red); color: #fff;
+    border: none; border-radius: 8px; cursor: pointer; font-size: 14px;
+    font-family: inherit; font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn-search:hover { background: var(--red-light); }
+
+  /* ===== Relation Table ===== */
+  .relation-group { margin-bottom: 20px; }
+  .relation-group-title {
+    font-size: 14px; font-weight: 700; color: var(--red);
+    background: var(--red-bg);
+    padding: 8px 14px; border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--red);
+  }
+  .relation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .relation-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .relation-item:hover {
+    border-color: var(--red);
+    background: var(--red-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(192,57,43,0.15);
+  }
+  .relation-item-name { font-size: 15px; font-weight: 700; color: var(--red); }
+  .relation-item-desc { font-size: 11px; color: var(--sub); margin-top: 3px; }
+  .relation-item-titles {
+    font-size: 12px; margin-top: 6px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .badge-m { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 10px; }
+  .badge-f { background: #fce7f3; color: #9d174d; padding: 2px 8px; border-radius: 10px; }
+
+  /* ===== Search Results ===== */
+  #searchResults { margin-top: 10px; }
+  .no-result { text-align: center; color: var(--sub); padding: 30px; font-size: 14px; }
+
+  /* ===== Family Tree Visual ===== */
+  .tree-hint {
+    background: var(--red-bg);
+    border: 1px dashed var(--red);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--red);
+    margin-bottom: 16px;
+  }
+
+  /* ===== Custom Path Builder ===== */
+  .path-builder {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    align-items: center; margin-bottom: 12px;
+    min-height: 44px;
+    background: var(--red-bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    border: 1.5px dashed var(--border);
+  }
+  .path-step {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--red); color: #fff;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+  }
+  .path-step .del {
+    cursor: pointer; opacity: 0.7; font-size: 11px;
+    margin-left: 2px;
+  }
+  .path-step .del:hover { opacity: 1; }
+  .path-arrow { color: var(--sub); font-size: 12px; }
+  .path-empty { color: var(--sub); font-size: 13px; }
+
+  .step-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .step-btn {
+    padding: 7px 14px; border: 1.5px solid var(--border);
+    border-radius: 20px; cursor: pointer; font-size: 13px;
+    background: #fff; color: var(--text); transition: all 0.15s;
+    font-family: inherit;
+  }
+  .step-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+  .clear-btn {
+    padding: 6px 14px; border: none;
+    background: #fee2e2; color: var(--red);
+    border-radius: 20px; cursor: pointer; font-size: 12px;
+    font-family: inherit; font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header h1 { font-size: 20px; }
+    .result-main { font-size: 32px; }
+    .relation-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏠 中国亲戚称呼计算器</h1>
+  <p>一键查询亲戚关系 · 再也不怕叫错人</p>
+</header>
+
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('quick')">⚡ 快速查询</button>
+    <button class="tab" onclick="switchTab('custom')">🔗 自定义路径</button>
+    <button class="tab" onclick="switchTab('browse')">📖 称呼大全</button>
+    <button class="tab" onclick="switchTab('search')">🔍 搜索</button>
+  </div>
+
+  <!-- ==================== Tab 1: Quick ==================== -->
+  <div id="tab-quick" class="tab-content active">
+    <div class="card">
+      <h2>⚡ 我是谁</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>我的性别</label>
+          <div class="gender-group">
+            <button class="gender-btn male active" id="my-male" onclick="setMyGender('male')">👨 男</button>
+            <button class="gender-btn female" id="my-female" onclick="setMyGender('female')">👩 女</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>👥 我想查谁</h2>
+      <div class="form-row">
+        <div class="form-group" style="flex: 2; min-width: 200px;">
+          <label>选择亲戚关系</label>
+          <select id="relSelect" onchange="onRelChange()">
+            <option value="">-- 请选择 --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>他/她的性别</label>
+          <div class="gender-group">
+            <button class="gender-btn male active" id="target-male" onclick="setTargetGender('male')">👨 男</button>
+            <button class="gender-btn female" id="target-female" onclick="setTargetGender('female')">👩 女</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-calc" onclick="calculate()">🧮 计算称呼</button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-box" id="resultBox">
+      <div style="font-size: 13px; color: var(--sub);">我应该叫他/她</div>
+      <div class="result-main" id="resultTitle"></div>
+      <div class="result-sub" id="resultDesc"></div>
+      <div class="result-reverse" id="resultReverse"></div>
+      <div id="resultGen"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Tab 2: Custom Path ==================== -->
+  <div id="tab-custom" class="tab-content">
+    <div class="card">
+      <h2>🔗 自定义关系路径</h2>
+      <p style="font-size: 13px; color: var(--sub); margin-bottom: 16px;">
+        点击下方按钮，逐步选择关系路径，例如「父亲 → 哥哥 → 儿子」= 堂兄弟
+      </p>
+
+      <!-- My gender -->
+      <div class="form-row" style="margin-bottom: 12px;">
+        <div class="form-group">
+          <label>我的性别</label>
+          <div class="gender-group">
+            <button class="gender-btn male active" id="cp-my-male" onclick="setCpMyGender('male')">👨 男</button>
+            <button class="gender-btn female" id="cp-my-female" onclick="setCpMyGender('female')">👩 女</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>对方性别</label>
+          <div class="gender-group">
+            <button class="gender-btn male active" id="cp-target-male" onclick="setCpTargetGender('male')">👨 男</button>
+            <button class="gender-btn female" id="cp-target-female" onclick="setCpTargetGender('female')">👩 女</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Path display -->
+      <div class="path-builder" id="pathBuilder">
+        <span class="path-empty">请点击下方步骤添加关系...</span>
+      </div>
+
+      <!-- Step buttons -->
+      <div class="step-btns" id="stepBtns">
+        <button class="step-btn" onclick="addStep('father','父亲')">父亲</button>
+        <button class="step-btn" onclick="addStep('mother','母亲')">母亲</button>
+        <button class="step-btn" onclick="addStep('elder_brother','哥哥')">哥哥</button>
+        <button class="step-btn" onclick="addStep('younger_brother','弟弟')">弟弟</button>
+        <button class="step-btn" onclick="addStep('elder_sister','姐姐')">姐姐</button>
+        <button class="step-btn" onclick="addStep('younger_sister','妹妹')">妹妹</button>
+        <button class="step-btn" onclick="addStep('son','儿子')">儿子</button>
+        <button class="step-btn" onclick="addStep('daughter','女儿')">女儿</button>
+        <button class="step-btn" onclick="addStep('spouse','配偶')">配偶</button>
+        <button class="clear-btn" onclick="clearPath()">✕ 清空</button>
+      </div>
+
+      <button class="btn-calc" onclick="calcCustom()">🧮 计算称呼</button>
+    </div>
+
+    <div class="result-box" id="cpResultBox">
+      <div style="font-size: 13px; color: var(--sub);">我应该叫他/她</div>
+      <div class="result-main" id="cpResultTitle"></div>
+      <div class="result-sub" id="cpResultDesc"></div>
+      <div class="result-reverse" id="cpResultReverse"></div>
+      <div id="cpResultGen"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Tab 3: Browse ==================== -->
+  <div id="tab-browse" class="tab-content">
+    <div class="card">
+      <h2>📖 中国亲戚称呼大全</h2>
+      <p style="font-size: 13px; color: var(--sub); margin-bottom: 16px;">
+        点击任意亲戚卡片可跳转到快速查询
+      </p>
+      <div id="browseContent">加载中...</div>
+    </div>
+  </div>
+
+  <!-- ==================== Tab 4: Search ==================== -->
+  <div id="tab-search" class="tab-content">
+    <div class="card">
+      <h2>🔍 搜索亲戚称呼</h2>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="输入关键词，如：舅、表、堂..."
+          onkeydown="if(event.key==='Enter') doSearch()" />
+        <button class="btn-search" onclick="doSearch()">搜索</button>
+      </div>
+      <div id="searchResults">
+        <div class="no-result">请输入关键词开始搜索</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ==================== State ====================
+let myGender = 'male';
+let targetGender = 'male';
+let cpMyGender = 'male';
+let cpTargetGender = 'male';
+let customSteps = [];
+let customStepLabels = [];
+
+// ==================== Init ====================
+async function init() {
+  await loadOptions();
+  await loadBrowse();
+}
+
+async function loadOptions() {
+  const res = await fetch('/api/options');
+  const data = await res.json();
+  const sel = document.getElementById('relSelect');
+  data.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.path;
+    opt.dataset.gender = item.gender;
+    opt.textContent = item.display;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadBrowse() {
+  const res = await fetch('/api/all');
+  const data = await res.json();
+  const container = document.getElementById('browseContent');
+  container.innerHTML = '';
+
+  for (const [groupName, items] of Object.entries(data)) {
+    if (!items.length) continue;
+    const div = document.createElement('div');
+    div.className = 'relation-group';
+    div.innerHTML = `<div class="relation-group-title">${groupName}</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'relation-grid';
+
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'relation-item';
+      card.onclick = () => jumpToQuick(item.path);
+
+      const maleBadge = item.male_title
+        ? `<span class="badge-m">♂ ${item.male_title}</span>` : '';
+      const femaleBadge = item.female_title && item.female_title !== item.male_title
+        ? `<span class="badge-f">♀ ${item.female_title}</span>` : '';
+
+      card.innerHTML = `
+        <div class="relation-item-name">${item.male_title || item.female_title}</div>
+        <div class="relation-item-desc">${item.display}</div>
+        <div class="relation-item-titles">${maleBadge}${femaleBadge}</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    div.appendChild(grid);
+    container.appendChild(div);
+  }
+}
+
+function jumpToQuick(path) {
+  switchTab('quick');
+  document.getElementById('relSelect').value = path;
+  calculate();
+}
+
+// ==================== Tab Switching ====================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['quick','custom','browse','search'];
+    t.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === `tab-${name}`);
+  });
+}
+
+// ==================== Gender ====================
+function setMyGender(g) {
+  myGender = g;
+  document.getElementById('my-male').classList.toggle('active', g === 'male');
+  document.getElementById('my-female').classList.toggle('active', g === 'female');
+}
+function setTargetGender(g) {
+  targetGender = g;
+  document.getElementById('target-male').classList.toggle('active', g === 'male');
+  document.getElementById('target-female').classList.toggle('active', g === 'female');
+}
+function setCpMyGender(g) {
+  cpMyGender = g;
+  document.getElementById('cp-my-male').classList.toggle('active', g === 'male');
+  document.getElementById('cp-my-female').classList.toggle('active', g === 'female');
+}
+function setCpTargetGender(g) {
+  cpTargetGender = g;
+  document.getElementById('cp-target-male').classList.toggle('active', g === 'male');
+  document.getElementById('cp-target-female').classList.toggle('active', g === 'female');
+}
+
+function onRelChange() {
+  const sel = document.getElementById('relSelect');
+  const opt = sel.selectedOptions[0];
+  if (!opt) return;
+  const g = opt.dataset.gender;
+  if (g === 'male') setTargetGender('male');
+  else if (g === 'female') setTargetGender('female');
+}
+
+// ==================== Calculate ====================
+async function calculate() {
+  const path = document.getElementById('relSelect').value;
+  if (!path) {
+    alert('请先选择亲戚关系');
+    return;
+  }
+  const url = `/api/calc?path=${encodeURIComponent(path)}&target_gender=${targetGender}&my_gender=${myGender}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  showResult(data, 'resultBox', 'resultTitle', 'resultDesc', 'resultReverse', 'resultGen');
+}
+
+async function calcCustom() {
+  if (!customSteps.length) {
+    alert('请先添加关系步骤');
+    return;
+  }
+  const path = customSteps.join('.');
+  const url = `/api/calc?path=${encodeURIComponent(path)}&target_gender=${cpTargetGender}&my_gender=${cpMyGender}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  showResult(data, 'cpResultBox', 'cpResultTitle', 'cpResultDesc', 'cpResultReverse', 'cpResultGen');
+}
+
+function showResult(data, boxId, titleId, descId, reverseId, genId) {
+  const box = document.getElementById(boxId);
+  document.getElementById(titleId).textContent = data.title || '未知';
+  document.getElementById(descId).textContent = data.relation_desc || '';
+
+  const reverseEl = document.getElementById(reverseId);
+  if (data.reverse_title && data.reverse_title !== '未知') {
+    reverseEl.innerHTML = `对方叫我：<span>${data.reverse_title}</span>`;
+  } else {
+    reverseEl.innerHTML = '';
+  }
+
+  const genEl = document.getElementById(genId);
+  const gen = data.generation_diff;
+  let badgeClass = 'same', badgeText = '同辈';
+  if (gen > 0) { badgeClass = 'up'; badgeText = `长辈 (高 ${gen} 辈)`; }
+  else if (gen < 0) { badgeClass = 'down'; badgeText = `晚辈 (低 ${Math.abs(gen)} 辈)`; }
+  genEl.innerHTML = `<span class="gen-badge ${badgeClass}">${badgeText}</span>`;
+
+  box.classList.add('show');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ==================== Custom Path Builder ====================
+function addStep(key, label) {
+  customSteps.push(key);
+  customStepLabels.push(label);
+  renderPath();
+}
+
+function removeStep(idx) {
+  customSteps.splice(idx, 1);
+  customStepLabels.splice(idx, 1);
+  renderPath();
+}
+
+function clearPath() {
+  customSteps = [];
+  customStepLabels = [];
+  renderPath();
+  document.getElementById('cpResultBox').classList.remove('show');
+}
+
+function renderPath() {
+  const builder = document.getElementById('pathBuilder');
+  if (!customSteps.length) {
+    builder.innerHTML = '<span class="path-empty">请点击下方步骤添加关系...</span>';
+    return;
+  }
+  builder.innerHTML = customStepLabels.map((label, i) => {
+    const arrow = i < customStepLabels.length - 1
+      ? '<span class="path-arrow">→</span>' : '';
+    return `<span class="path-step">${label}<span class="del" onclick="removeStep(${i})">✕</span></span>${arrow}`;
+  }).join('');
+}
+
+// ==================== Search ====================
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+  const data = await res.json();
+  const container = document.getElementById('searchResults');
+
+  if (!data.length) {
+    container.innerHTML = '<div class="no-result">😕 没有找到匹配的称呼，换个关键词试试</div>';
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'relation-grid';
+  data.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'relation-item';
+    card.onclick = () => jumpToQuick(item.path);
+    const mb = item.male_title ? `<span class="badge-m">♂ ${item.male_title}</span>` : '';
+    const fb = item.female_title && item.female_title !== item.male_title
+      ? `<span class="badge-f">♀ ${item.female_title}</span>` : '';
+    card.innerHTML = `
+      <div class="relation-item-name">${item.male_title || item.female_title}</div>
+      <div class="relation-item-desc">${item.display}</div>
+      <div class="relation-item-titles">${mb}${fb}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  container.innerHTML = `<p style="font-size:13px;color:var(--sub);margin-bottom:10px;">找到 ${data.length} 个结果</p>`;
+  container.appendChild(grid);
+}
+
+// ==================== Boot ====================
+init();
+</script>
+</body>
+</html>
