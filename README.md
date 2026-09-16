@@ -2,12 +2,18 @@
 
 一款基于 Python 的中国亲戚称呼计算工具，帮你快速查询各种亲戚关系的称呼。
 
+![输入亲戚关系，一键计算称呼](assets/screenshot-query.png)
+
 ## 功能特点
 
 - ⚡ **快速查询**：选择关系 + 性别，一键计算称呼
 - 🔗 **自定义路径**：逐步添加关系步骤，计算复杂亲戚关系
 - 📖 **称呼大全**：按辈分分类浏览所有亲戚称呼
 - 🔍 **关键词搜索**：快速查找感兴趣的称呼
+
+结果卡片会同时给出「我该怎么称呼对方」和「对方该怎么称呼我」，并标出推出来的关系路径：
+
+![计算结果：我应该叫他/她 表哥](assets/screenshot-result.png)
 
 ## 涵盖的关系
 
@@ -22,11 +28,11 @@
 ## 启动方法
 
 ### 方法一：双击启动
-双击 `start.sh` 文件（需要先赋予执行权限）
+先赋予执行权限（只需一次）：`chmod +x start.sh`，之后双击 `start.sh` 即可
 
 ### 方法二：终端启动
 ```bash
-cd ~/Desktop/亲戚称呼计算器
+cd chinese-relative-title-calculator
 python3 app.py
 ```
 
@@ -40,11 +46,12 @@ python3 app.py
 ## 文件说明
 
 ```
-亲戚称呼计算器/
+chinese-relative-title-calculator/
 ├── app.py          # Web服务器（内置HTTP服务）
 ├── calculator.py   # 称呼计算核心逻辑
 ├── relations.py    # 亲戚关系数据库
 ├── index.html      # 前端界面
+├── assets/         # README 用的界面截图
 ├── start.sh        # 启动脚本
 └── README.md       # 说明文档
 ```
